@@ -102,25 +102,13 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
 .ind-row{display:flex;gap:5px;flex-wrap:wrap}
 .ind-btn{background:none;border:1px solid var(--bdr);color:var(--txt2);font-family:var(--fm);font-size:.62rem;padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .2s}
 .ind-btn:hover,.ind-btn.ion{background:rgba(255,204,0,.1);border-color:var(--y);color:var(--y)}
-.tvw2{height:400px;background:#060d18;position:relative;overflow:hidden}
-#smCanvas{width:100%;height:400px;display:block;cursor:grab;touch-action:none}
-#smCanvas:active{cursor:grabbing}
-.sm-scroll-hint{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);font-family:var(--fm);font-size:.56rem;color:var(--txt3);letter-spacing:.06em;pointer-events:none;opacity:.7}
+.tvw2{height:420px;background:#060d18;position:relative;overflow:hidden}
+#smCanvas{width:100%;height:420px;display:block;cursor:crosshair;touch-action:none;user-select:none}
 .sm-legend{display:flex;gap:14px;flex-wrap:wrap;padding:.55rem 1.3rem;border-top:1px solid var(--bdr)}
 .sml{font-family:var(--fm);font-size:.6rem;color:var(--txt2);display:flex;align-items:center;gap:5px}
 .sml span{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
 .ind-btn.active-liq{background:rgba(245,158,11,.15);border-color:#f59e0b;color:#f59e0b}
 .ind-btn.active-iv{background:var(--adim);border-color:var(--acc);color:var(--acc)}
-/* Scroll control bar */
-.sm-ctrl-bar{display:flex;align-items:center;gap:4px;padding:6px 10px;border-top:1px solid var(--bdr);background:var(--bg2)}
-.sm-ctrl-btn{background:none;border:1px solid var(--bdr);color:var(--txt2);font-family:var(--fm);font-size:.65rem;padding:3px 9px;border-radius:5px;cursor:pointer;transition:all .15s;flex-shrink:0}
-.sm-ctrl-btn:hover{background:var(--adim);border-color:var(--acc);color:var(--acc)}
-.sm-zoom-btn{margin-left:2px;font-size:.8rem;font-weight:700;padding:2px 10px}
-.sm-scrollbar-wrap{flex:1;padding:0 4px}
-.sm-scrollbar-track{width:100%;height:6px;background:rgba(26,48,80,.6);border-radius:3px;position:relative;cursor:pointer}
-.sm-scrollbar-thumb{height:100%;background:rgba(0,212,255,.5);border-radius:3px;position:absolute;top:0;left:0;min-width:20px;cursor:grab;transition:background .15s}
-.sm-scrollbar-thumb:hover,.sm-scrollbar-thumb:active{background:rgba(0,212,255,.8)}
-.sm-scrollbar-thumb:active{cursor:grabbing}
 
 /* LOADING OVERLAY */
 .ov{display:none;position:absolute;inset:0;background:rgba(2,4,8,.7);backdrop-filter:blur(4px);align-items:center;justify-content:center;z-index:10;border-radius:14px}
@@ -192,6 +180,14 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
 
 .ldg{padding:12px;font-family:var(--fm);font-size:.68rem;color:var(--txt2);text-align:center}
 .oin{padding:5px 1rem 2px;font-family:var(--fm);font-size:.56rem;color:var(--txt3)}
+/* OI row layout */
+.oi-row{gap:7px}
+.oi-info{flex:1;min-width:0}
+.oi-bar-wrap{height:3px;background:rgba(26,48,80,.7);border-radius:2px;margin-top:3px;overflow:hidden}
+.oi-bar{height:100%;border-radius:2px;transition:width .3s}
+.oi-vals{text-align:right;flex-shrink:0}
+.oi-pct{display:block;font-family:var(--fm);font-size:.82rem;font-weight:700}
+.oi-usd{display:block;font-family:var(--fm);font-size:.58rem;color:var(--txt2);margin-top:1px}
 
 .scanline{position:fixed;inset:0;background:repeating-linear-gradient(to bottom,transparent 0,transparent 3px,rgba(0,0,0,.012) 3px,rgba(0,0,0,.012) 4px);pointer-events:none;z-index:9999}
 ::-webkit-scrollbar{width:5px}
@@ -282,20 +278,6 @@ nav{position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-co
         <div class="tvw2">
           <canvas id="smCanvas"></canvas>
           <div id="smTooltip" style="display:none;position:absolute;background:rgba(6,13,24,.95);border:1px solid #1a3050;border-radius:7px;padding:7px 10px;font-family:var(--fm);font-size:.65rem;pointer-events:none;z-index:20;white-space:nowrap"></div>
-        </div>
-        <!-- Scroll controls bar -->
-        <div class="sm-ctrl-bar">
-          <button class="sm-ctrl-btn" onclick="smPan(-20)" title="Назад">◀◀</button>
-          <button class="sm-ctrl-btn" onclick="smPan(-5)"  title="Назад немного">◀</button>
-          <div class="sm-scrollbar-wrap">
-            <div class="sm-scrollbar-track" id="smTrack">
-              <div class="sm-scrollbar-thumb" id="smThumb"></div>
-            </div>
-          </div>
-          <button class="sm-ctrl-btn" onclick="smPan(5)"   title="Вперёд немного">▶</button>
-          <button class="sm-ctrl-btn" onclick="smPan(20)"  title="В конец">▶▶</button>
-          <button class="sm-ctrl-btn sm-zoom-btn" onclick="smZoom(-10)" title="Больше свечей">−</button>
-          <button class="sm-ctrl-btn sm-zoom-btn" onclick="smZoom(10)"  title="Меньше свечей">+</button>
         </div>
         <div class="sm-legend">
           <span class="sml"><span style="background:#f59e0b"></span>Liq Unswept</span>
@@ -533,9 +515,9 @@ const activeInds=new Set(['liq','fvg','ob']);
 let smInterval='15m';
 let smKlines=[];
 // Pan state for smart money chart
-let smViewOffset=0;       // index of first visible candle
+let smViewOffset=0;       // index of first visible candle (always = total-visible)
 let smCandlesVisible=80;  // candles in view
-let smIsDragging=false, smDragStartX=0, smDragStartOff=0;
+let smIsDragging=false;
 let liqMode='unswept'; // 'unswept' | 'all'
 
 // ── TICKER ────────────────────────────────────────────────────────────────
@@ -687,149 +669,120 @@ function drawSMChart(){
   if(!canvas||!smKlines.length) return;
   const dpr=window.devicePixelRatio||1;
   const W=canvas.parentElement.clientWidth||800;
-  const H=400;
+  const H=420;
   canvas.style.width=W+'px'; canvas.style.height=H+'px';
   canvas.width=W*dpr; canvas.height=H*dpr;
-  const ctx=canvas.getContext('2d'); ctx.scale(dpr,dpr);
-  ctx.clearRect(0,0,W,H);
 
-  const allK=smKlines; const total=allK.length;
-  // clamp view
-  smCandlesVisible=Math.min(Math.max(20,smCandlesVisible),total);
-  smViewOffset=Math.min(Math.max(0,smViewOffset), total-smCandlesVisible);
+  const allK=smKlines, total=allK.length;
+  smCandlesVisible=Math.min(Math.max(10,smCandlesVisible),total);
+  smViewOffset=Math.max(0,total-smCandlesVisible); // always show latest candles
 
-  // visible slice
   const startIdx=smViewOffset;
-  const endIdx=Math.min(startIdx+smCandlesVisible, total);
-  const K=allK.slice(startIdx, endIdx);
+  const K=allK.slice(startIdx, startIdx+smCandlesVisible);
   const n=K.length;
-  // We need full context for detecting swept liquidity (candles after each point in ALL data)
-  // so we work with indices relative to allK
 
-  const padL=10,padR=60,padT=14,padB=activeInds.has('vol')?90:18;
+  const padL=8, padR=72, padT=16, padB=activeInds.has('vol')?80:20;
   const chartW=W-padL-padR, chartH=H-padT-padB;
-  const gap=Math.floor(chartW/n)||1;
-  const candleW=Math.max(1,gap-1);
+  const gap=chartW/n;
+  const candleW=Math.max(1, gap*0.7);
 
-  // price range from visible candles (+ small padding)
+  // Price range with 8% padding
   let hi=Math.max(...K.map(k=>k.h)), lo=Math.min(...K.map(k=>k.l));
-  const pad=(hi-lo)*0.06; hi+=pad; lo-=pad;
-  const pRange=hi-lo||1;
-  const py=p=>padT+chartH-(((p-lo)/pRange)*chartH);
-  const px=i=>padL+i*gap+gap/2; // i = index within visible slice
+  const rng=(hi-lo)||1; hi+=rng*0.08; lo-=rng*0.08;
+  const pRange=hi-lo;
+  const py=p=>padT+chartH*(1-(p-lo)/pRange);
+  const px=i=>padL+(i+0.5)*gap;
 
-  // BACKGROUND
+  // ── DRAW TO OFFSCREEN BUFFER ──────────────────────────────────────────
+  const off=document.createElement('canvas');
+  off.width=W*dpr; off.height=H*dpr;
+  const ctx=off.getContext('2d'); ctx.scale(dpr,dpr);
+
+  // Background
   ctx.fillStyle='#060d18'; ctx.fillRect(0,0,W,H);
-  // Grid
-  for(let g=0;g<=5;g++){
-    const yy=padT+(g/5)*chartH;
-    ctx.strokeStyle='rgba(26,48,80,.3)'; ctx.lineWidth=.5;
-    ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
-    ctx.fillStyle='#6a8fad'; ctx.font='9px JetBrains Mono,monospace'; ctx.textAlign='left';
-    ctx.fillText(fmtP(hi-(g/5)*pRange), W-padR+4, yy+3);
-  }
 
-  // ── LIQUIDITY POOLS ────────────────────────────────────────────────────
+  // ── PRICE AXIS (right) ────────────────────────────────────────────────
+  // Nice round price levels
+  const rawStep=pRange/6;
+  const mag=Math.pow(10,Math.floor(Math.log10(rawStep)));
+  const niceStep=Math.ceil(rawStep/mag)*mag;
+  const firstTick=Math.ceil(lo/niceStep)*niceStep;
+  ctx.font=`${9*dpr/dpr}px JetBrains Mono,monospace`; // consistent font
+  for(let p=firstTick; p<=hi; p+=niceStep){
+    const yy=py(p);
+    if(yy<padT||yy>H-padB) continue;
+    // Grid line
+    ctx.strokeStyle='rgba(26,48,80,.28)'; ctx.lineWidth=.5; ctx.setLineDash([]);
+    ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
+    // Tick mark
+    ctx.strokeStyle='rgba(106,143,173,.5)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(W-padR,yy); ctx.lineTo(W-padR+4,yy); ctx.stroke();
+    // Price label
+    ctx.fillStyle='#8ab4cc'; ctx.textAlign='left'; ctx.font='9px JetBrains Mono,monospace';
+    ctx.fillText(fmtP(p), W-padR+7, yy+3);
+  }
+  // Axis border line
+  ctx.strokeStyle='rgba(26,48,80,.6)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(W-padR,padT); ctx.lineTo(W-padR,H-padB); ctx.stroke();
+
+  // ── LIQUIDITY POOLS ───────────────────────────────────────────────────
   if(activeInds.has('liq')){
     const lookback=5;
     for(let ai=lookback; ai<total-lookback; ai++){
       const k=allK[ai];
-      // Swing HIGH
-      const isSwingH=k.h===Math.max(...allK.slice(ai-lookback,ai+lookback+1).map(x=>x.h));
-      if(isSwingH){
-        const swept=allK.slice(ai+1).some(x=>x.h>k.h);
-        if(!swept || liqMode==='all'){
-          const vi=ai-startIdx;
-          const xStart=padL, xEnd=W-padR;
-          if(swept){
-            // Swept: green dimmed dashed line
-            ctx.strokeStyle='rgba(0,255,157,.45)'; ctx.lineWidth=.8; ctx.setLineDash([3,4]);
-            ctx.beginPath(); ctx.moveTo(xStart,py(k.h)); ctx.lineTo(xEnd,py(k.h)); ctx.stroke();
-            ctx.setLineDash([]);
-            if(vi>=0&&vi<n){
-              ctx.fillStyle='rgba(0,255,157,.5)'; ctx.font='7px JetBrains Mono,monospace'; ctx.textAlign='right';
-              ctx.fillText('swept ▲',W-padR-3,py(k.h)-3);
-            }
-          } else {
-            // Unswept: bold orange
-            ctx.strokeStyle='rgba(245,158,11,.9)'; ctx.lineWidth=1.4; ctx.setLineDash([5,3]);
-            ctx.beginPath(); ctx.moveTo(xStart,py(k.h)); ctx.lineTo(xEnd,py(k.h)); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle='rgba(245,158,11,.09)';
-            ctx.fillRect(xStart,py(k.h)-5,xEnd-xStart,10);
-            ctx.fillStyle='rgba(245,158,11,.95)'; ctx.font='bold 8px JetBrains Mono,monospace'; ctx.textAlign='right';
-            ctx.fillText('LIQ ▲',W-padR-3,py(k.h)-5);
-            if(vi>=0&&vi<n){
-              ctx.fillStyle='#f59e0b';
-              ctx.beginPath(); ctx.moveTo(px(vi),py(k.h)-10); ctx.lineTo(px(vi)-4,py(k.h)-4); ctx.lineTo(px(vi)+4,py(k.h)-4); ctx.closePath(); ctx.fill();
-            }
-          }
-        }
-      }
-      // Swing LOW
-      const isSwingL=k.l===Math.min(...allK.slice(ai-lookback,ai+lookback+1).map(x=>x.l));
-      if(isSwingL){
-        const swept=allK.slice(ai+1).some(x=>x.l<k.l);
-        if(!swept || liqMode==='all'){
-          const vi=ai-startIdx;
-          const xStart=padL, xEnd=W-padR;
-          if(swept){
-            ctx.strokeStyle='rgba(0,255,157,.45)'; ctx.lineWidth=.8; ctx.setLineDash([3,4]);
-            ctx.beginPath(); ctx.moveTo(xStart,py(k.l)); ctx.lineTo(xEnd,py(k.l)); ctx.stroke();
-            ctx.setLineDash([]);
-            if(vi>=0&&vi<n){
-              ctx.fillStyle='rgba(0,255,157,.5)'; ctx.font='7px JetBrains Mono,monospace'; ctx.textAlign='right';
-              ctx.fillText('swept ▼',W-padR-3,py(k.l)+10);
-            }
-          } else {
-            ctx.strokeStyle='rgba(245,158,11,.9)'; ctx.lineWidth=1.4; ctx.setLineDash([5,3]);
-            ctx.beginPath(); ctx.moveTo(xStart,py(k.l)); ctx.lineTo(xEnd,py(k.l)); ctx.stroke();
-            ctx.setLineDash([]);
-            ctx.fillStyle='rgba(245,158,11,.09)';
-            ctx.fillRect(xStart,py(k.l)-5,xEnd-xStart,10);
-            ctx.fillStyle='rgba(245,158,11,.95)'; ctx.font='bold 8px JetBrains Mono,monospace'; ctx.textAlign='right';
-            ctx.fillText('LIQ ▼',W-padR-3,py(k.l)+12);
-            if(vi>=0&&vi<n){
-              ctx.fillStyle='#f59e0b';
-              ctx.beginPath(); ctx.moveTo(px(vi),py(k.l)+10); ctx.lineTo(px(vi)-4,py(k.l)+4); ctx.lineTo(px(vi)+4,py(k.l)+4); ctx.closePath(); ctx.fill();
-            }
+      const isH=k.h===Math.max(...allK.slice(ai-lookback,ai+lookback+1).map(x=>x.h));
+      const isL=k.l===Math.min(...allK.slice(ai-lookback,ai+lookback+1).map(x=>x.l));
+      for(const [isSwing,price,dir] of [[isH,k.h,1],[isL,k.l,-1]]){
+        if(!isSwing) continue;
+        const swept=dir===1?allK.slice(ai+1).some(x=>x.h>price):allK.slice(ai+1).some(x=>x.l<price);
+        if(swept&&liqMode!=='all') continue;
+        const vi=ai-startIdx;
+        const yy=py(price);
+        if(yy<padT||yy>H-padB) continue;
+        if(swept){
+          ctx.strokeStyle='rgba(0,255,157,.35)'; ctx.lineWidth=.7; ctx.setLineDash([3,5]);
+          ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          ctx.strokeStyle='rgba(245,158,11,.85)'; ctx.lineWidth=1.3; ctx.setLineDash([6,3]);
+          ctx.beginPath(); ctx.moveTo(padL,yy); ctx.lineTo(W-padR,yy); ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle='rgba(245,158,11,.07)';
+          ctx.fillRect(padL,yy-4,chartW,8);
+          // Label only if origin candle is visible
+          if(vi>=0&&vi<n){
+            ctx.fillStyle='rgba(245,158,11,.9)'; ctx.font='bold 8px JetBrains Mono,monospace'; ctx.textAlign='left';
+            ctx.fillText(dir===1?'LIQ▲':'LIQ▼', W-padR+7, yy+(dir===1?-3:10));
+            // Triangle marker on candle
+            const cx=px(vi);
+            ctx.fillStyle='#f59e0b';
+            ctx.beginPath();
+            if(dir===1){ ctx.moveTo(cx,yy-12); ctx.lineTo(cx-4,yy-5); ctx.lineTo(cx+4,yy-5); }
+            else        { ctx.moveTo(cx,yy+12); ctx.lineTo(cx-4,yy+5); ctx.lineTo(cx+4,yy+5); }
+            ctx.closePath(); ctx.fill();
           }
         }
       }
     }
   }
 
-  // ── FVG (Fair Value Gaps) ──────────────────────────────────────────────
+  // ── FVG ───────────────────────────────────────────────────────────────
   if(activeInds.has('fvg')){
     for(let i=2;i<n;i++){
       const ai=startIdx+i;
-      // Bullish FVG
-      if(K[i-2].h < K[i].l){
-        const top=K[i].l, bot=K[i-2].h;
+      if(K[i-2].h<K[i].l){
+        const top=K[i].l,bot=K[i-2].h;
         const filled=allK.slice(ai+1).some(k=>k.l<top&&k.h>bot);
-        ctx.fillStyle=filled?'rgba(167,139,250,.05)':'rgba(167,139,250,.18)';
-        ctx.fillRect(px(i-1)-gap/2, py(top), (n-i)*gap, py(bot)-py(top));
-        if(!filled){
-          ctx.strokeStyle='rgba(167,139,250,.5)'; ctx.lineWidth=.7; ctx.setLineDash([2,2]);
-          ctx.strokeRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));
-          ctx.setLineDash([]);
-          ctx.fillStyle='rgba(167,139,250,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='right';
-          ctx.fillText('FVG↑',W-padR-2,py(top)-2);
-        }
+        ctx.fillStyle=filled?'rgba(167,139,250,.04)':'rgba(167,139,250,.16)';
+        ctx.fillRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));
+        if(!filled){ctx.strokeStyle='rgba(167,139,250,.45)';ctx.lineWidth=.6;ctx.setLineDash([2,2]);ctx.strokeRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));ctx.setLineDash([]);}
       }
-      // Bearish FVG
-      if(K[i-2].l > K[i].h){
-        const bot=K[i].h, top=K[i-2].l;
+      if(K[i-2].l>K[i].h){
+        const bot=K[i].h,top=K[i-2].l;
         const filled=allK.slice(ai+1).some(k=>k.h>bot&&k.l<top);
-        ctx.fillStyle=filled?'rgba(248,113,113,.04)':'rgba(248,113,113,.16)';
-        ctx.fillRect(px(i-1)-gap/2, py(top), (n-i)*gap, py(bot)-py(top));
-        if(!filled){
-          ctx.strokeStyle='rgba(248,113,113,.5)'; ctx.lineWidth=.7; ctx.setLineDash([2,2]);
-          ctx.strokeRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));
-          ctx.setLineDash([]);
-          ctx.fillStyle='rgba(248,113,113,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='right';
-          ctx.fillText('FVG↓',W-padR-2,py(top)+9);
-        }
+        ctx.fillStyle=filled?'rgba(248,113,113,.03)':'rgba(248,113,113,.14)';
+        ctx.fillRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));
+        if(!filled){ctx.strokeStyle='rgba(248,113,113,.45)';ctx.lineWidth=.6;ctx.setLineDash([2,2]);ctx.strokeRect(px(i-1)-gap/2,py(top),(n-i)*gap,py(bot)-py(top));ctx.setLineDash([]);}
       }
     }
   }
@@ -837,138 +790,116 @@ function drawSMChart(){
   // ── ORDER BLOCKS ──────────────────────────────────────────────────────
   if(activeInds.has('ob')){
     for(let i=1;i<n-1;i++){
-      const ai=startIdx+i; const next=K[i+1];
-      // Bullish OB
-      if(K[i].c<K[i].o && next.c>next.o && (next.c-next.o)>(next.h-next.l)*0.55){
-        const mitigated=allK.slice(ai+2).some(k=>k.l<K[i].c);
-        if(!mitigated){
-          ctx.fillStyle='rgba(96,165,250,.14)';
-          ctx.fillRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
-          ctx.strokeStyle='rgba(96,165,250,.5)'; ctx.lineWidth=.8;
-          ctx.strokeRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
-          ctx.fillStyle='rgba(96,165,250,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';
-          ctx.fillText('OB↑',px(i)+2,py(K[i].c)-3);
+      const ai=startIdx+i; const nk=K[i+1];
+      if(K[i].c<K[i].o&&nk.c>nk.o&&(nk.c-nk.o)>(nk.h-nk.l)*0.55){
+        if(!allK.slice(ai+2).some(k=>k.l<K[i].c)){
+          ctx.fillStyle='rgba(96,165,250,.12)';ctx.fillRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
+          ctx.strokeStyle='rgba(96,165,250,.45)';ctx.lineWidth=.7;ctx.strokeRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
+          ctx.fillStyle='rgba(96,165,250,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';ctx.fillText('OB↑',px(i)+2,py(K[i].c)-3);
         }
       }
-      // Bearish OB
-      if(K[i].c>K[i].o && next.c<next.o && (next.o-next.c)>(next.h-next.l)*0.55){
-        const mitigated=allK.slice(ai+2).some(k=>k.h>K[i].c);
-        if(!mitigated){
-          ctx.fillStyle='rgba(255,64,96,.12)';
-          ctx.fillRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
-          ctx.strokeStyle='rgba(255,64,96,.45)'; ctx.lineWidth=.8;
-          ctx.strokeRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
-          ctx.fillStyle='rgba(255,64,96,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';
-          ctx.fillText('OB↓',px(i)+2,py(K[i].c)+9);
+      if(K[i].c>K[i].o&&nk.c<nk.o&&(nk.o-nk.c)>(nk.h-nk.l)*0.55){
+        if(!allK.slice(ai+2).some(k=>k.h>K[i].c)){
+          ctx.fillStyle='rgba(255,64,96,.1)';ctx.fillRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
+          ctx.strokeStyle='rgba(255,64,96,.4)';ctx.lineWidth=.7;ctx.strokeRect(px(i)-gap/2,py(K[i].h),gap*(n-1-i),py(K[i].l)-py(K[i].h));
+          ctx.fillStyle='rgba(255,64,96,.9)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';ctx.fillText('OB↓',px(i)+2,py(K[i].c)+9);
         }
       }
     }
   }
 
   // ── CANDLES ───────────────────────────────────────────────────────────
-  K.forEach((k,i)=>{
-    const bull=k.c>=k.o;
-    const x=px(i), yH=py(k.h), yL=py(k.l), yO=py(k.o), yC=py(k.c);
-    const cW=Math.max(1,candleW);
-    ctx.strokeStyle=bull?'rgba(0,255,157,.7)':'rgba(255,64,96,.7)'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(x,yH); ctx.lineTo(x,yL); ctx.stroke();
-    ctx.fillStyle=bull?'rgba(0,255,157,.85)':'rgba(255,64,96,.85)';
-    const bY=Math.min(yO,yC), bH=Math.max(1,Math.abs(yC-yO));
-    ctx.fillRect(x-cW/2, bY, cW, bH);
-  });
+  for(let i=0;i<n;i++){
+    const k=K[i],bull=k.c>=k.o,x=px(i),cW=Math.max(1,candleW);
+    const col=bull?'rgba(0,255,157,.8)':'rgba(255,64,96,.8)';
+    ctx.strokeStyle=col; ctx.lineWidth=Math.max(1,cW>4?1.2:.8);
+    ctx.beginPath(); ctx.moveTo(x,py(k.h)); ctx.lineTo(x,py(k.l)); ctx.stroke();
+    ctx.fillStyle=col;
+    const bY=Math.min(py(k.o),py(k.c)), bH=Math.max(1,Math.abs(py(k.c)-py(k.o)));
+    ctx.fillRect(x-cW/2,bY,cW,bH);
+  }
 
-  // ── SWING HIGHS / LOWS ─────────────────────────────────────────────────
+  // ── SWING H/L ─────────────────────────────────────────────────────────
   if(activeInds.has('swing')){
     for(let i=2;i<n-2;i++){
-      if(K[i].h>K[i-1].h&&K[i].h>K[i-2].h&&K[i].h>K[i+1].h&&K[i].h>K[i+2].h){
-        ctx.fillStyle='#ffcc00';
-        ctx.beginPath(); ctx.moveTo(px(i),py(K[i].h)-11);
-        ctx.lineTo(px(i)-4,py(K[i].h)-4); ctx.lineTo(px(i)+4,py(K[i].h)-4);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='rgba(255,204,0,.7)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center';
-        ctx.fillText('HH',px(i),py(K[i].h)-13);
+      if(K[i].h>K[i-1].h&&K[i].h>K[i+1].h&&K[i].h>K[i-2].h&&K[i].h>K[i+2].h){
+        ctx.fillStyle='rgba(255,204,0,.8)';
+        ctx.beginPath();ctx.moveTo(px(i),py(K[i].h)-10);ctx.lineTo(px(i)-4,py(K[i].h)-4);ctx.lineTo(px(i)+4,py(K[i].h)-4);ctx.closePath();ctx.fill();
+        ctx.fillStyle='rgba(255,204,0,.65)';ctx.font='7px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText('HH',px(i),py(K[i].h)-12);
       }
-      if(K[i].l<K[i-1].l&&K[i].l<K[i-2].l&&K[i].l<K[i+1].l&&K[i].l<K[i+2].l){
-        ctx.fillStyle='#ffcc00';
-        ctx.beginPath(); ctx.moveTo(px(i),py(K[i].l)+11);
-        ctx.lineTo(px(i)-4,py(K[i].l)+4); ctx.lineTo(px(i)+4,py(K[i].l)+4);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle='rgba(255,204,0,.7)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='center';
-        ctx.fillText('LL',px(i),py(K[i].l)+19);
+      if(K[i].l<K[i-1].l&&K[i].l<K[i+1].l&&K[i].l<K[i-2].l&&K[i].l<K[i+2].l){
+        ctx.fillStyle='rgba(255,204,0,.8)';
+        ctx.beginPath();ctx.moveTo(px(i),py(K[i].l)+10);ctx.lineTo(px(i)-4,py(K[i].l)+4);ctx.lineTo(px(i)+4,py(K[i].l)+4);ctx.closePath();ctx.fill();
+        ctx.fillStyle='rgba(255,204,0,.65)';ctx.font='7px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText('LL',px(i),py(K[i].l)+18);
       }
     }
   }
 
-  // ── BOS / CHoCH ───────────────────────────────────────────────────────
+  // ── BOS/CHoCH ─────────────────────────────────────────────────────────
   if(activeInds.has('bos')){
-    let lastHH=-Infinity, lastLL=Infinity;
+    let lHH=-Infinity,lLL=Infinity;
     for(let i=3;i<n;i++){
-      if(K[i].c>lastHH&&lastHH>-Infinity){
-        ctx.strokeStyle='rgba(0,255,157,.8)'; ctx.lineWidth=1.2; ctx.setLineDash([3,2]);
-        ctx.beginPath(); ctx.moveTo(padL,py(lastHH)); ctx.lineTo(px(i),py(lastHH)); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle='#00ff9d';ctx.font='bold 8px JetBrains Mono,monospace';ctx.textAlign='center';
-        ctx.fillText('BOS',px(i),py(lastHH)-5);
-        lastHH=K[i].h;
+      if(K[i].c>lHH&&lHH>-Infinity){
+        ctx.strokeStyle='rgba(0,255,157,.7)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+        ctx.beginPath();ctx.moveTo(padL,py(lHH));ctx.lineTo(px(i),py(lHH));ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#00ff9d';ctx.font='bold 7px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText('BOS',px(i),py(lHH)-4);
+        lHH=K[i].h;
       }
-      if(K[i].c<lastLL&&lastLL<Infinity){
-        ctx.strokeStyle='rgba(255,64,96,.8)'; ctx.lineWidth=1.2; ctx.setLineDash([3,2]);
-        ctx.beginPath(); ctx.moveTo(padL,py(lastLL)); ctx.lineTo(px(i),py(lastLL)); ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle='#ff4060';ctx.font='bold 8px JetBrains Mono,monospace';ctx.textAlign='center';
-        ctx.fillText('BOS',px(i),py(lastLL)+12);
-        lastLL=K[i].l;
+      if(K[i].c<lLL&&lLL<Infinity){
+        ctx.strokeStyle='rgba(255,64,96,.7)';ctx.lineWidth=1;ctx.setLineDash([3,2]);
+        ctx.beginPath();ctx.moveTo(padL,py(lLL));ctx.lineTo(px(i),py(lLL));ctx.stroke();ctx.setLineDash([]);
+        ctx.fillStyle='#ff4060';ctx.font='bold 7px JetBrains Mono,monospace';ctx.textAlign='center';ctx.fillText('BOS',px(i),py(lLL)+11);
+        lLL=K[i].l;
       }
-      if(K[i-1].h>lastHH) lastHH=Math.max(lastHH,K[i-1].h);
-      if(K[i-1].l<lastLL) lastLL=Math.min(lastLL,K[i-1].l);
+      if(K[i-1].h>lHH) lHH=K[i-1].h;
+      if(K[i-1].l<lLL) lLL=K[i-1].l;
     }
   }
 
-  // ── VOLUME BARS ───────────────────────────────────────────────────────
+  // ── VOLUME ────────────────────────────────────────────────────────────
   if(activeInds.has('vol')){
-    const maxVol=Math.max(...K.map(k=>k.v));
-    const volH=68, volY=H-padB+8;
-    ctx.fillStyle='rgba(26,48,80,.35)'; ctx.fillRect(padL,volY,chartW,volH);
-    K.forEach((k,i)=>{
-      const bull=k.c>=k.o;
-      const barH=Math.max(1,(k.v/maxVol)*volH);
-      ctx.fillStyle=bull?'rgba(0,255,157,.45)':'rgba(255,64,96,.45)';
-      ctx.fillRect(px(i)-candleW/2, volY+volH-barH, Math.max(1,candleW), barH);
-    });
-    ctx.fillStyle='#6a8fad';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';
-    ctx.fillText('VOL',padL+2,volY+10);
+    const maxV=Math.max(...K.map(k=>k.v));
+    const vH=60,vY=H-padB+8;
+    ctx.fillStyle='rgba(10,22,40,.5)'; ctx.fillRect(padL,vY,chartW,vH);
+    for(let i=0;i<n;i++){
+      const k=K[i],bH=Math.max(1,(k.v/maxV)*vH);
+      ctx.fillStyle=k.c>=k.o?'rgba(0,255,157,.4)':'rgba(255,64,96,.4)';
+      ctx.fillRect(px(i)-candleW/2,vY+vH-bH,Math.max(1,candleW),bH);
+    }
+    ctx.fillStyle='rgba(106,143,173,.5)';ctx.font='8px JetBrains Mono,monospace';ctx.textAlign='left';ctx.fillText('VOL',padL+3,vY+10);
   }
 
   // ── CURRENT PRICE LINE ────────────────────────────────────────────────
-  const last=K[n-1];
-  ctx.strokeStyle=last.c>=last.o?'rgba(0,255,157,.6)':'rgba(255,64,96,.6)';
-  ctx.lineWidth=.8; ctx.setLineDash([4,3]);
+  const last=K[n-1], bull=last.c>=last.o;
+  const lcol=bull?'rgba(0,255,157,.7)':'rgba(255,64,96,.7)';
+  ctx.strokeStyle=lcol; ctx.lineWidth=.8; ctx.setLineDash([5,3]);
   ctx.beginPath(); ctx.moveTo(padL,py(last.c)); ctx.lineTo(W-padR,py(last.c)); ctx.stroke();
   ctx.setLineDash([]);
-  ctx.fillStyle=last.c>=last.o?'rgba(0,255,157,.9)':'rgba(255,64,96,.9)';
-  ctx.fillRect(W-padR,py(last.c)-8,padR,16);
-  ctx.fillStyle='#020408';ctx.font='bold 8px JetBrains Mono,monospace';ctx.textAlign='center';
-  ctx.fillText(fmtP(last.c),W-padR+padR/2,py(last.c)+3);
+  // Price badge on axis
+  const badgeCol=bull?'rgba(0,255,157,.95)':'rgba(255,64,96,.95)';
+  ctx.fillStyle=badgeCol;
+  const bY2=py(last.c)-9, bH2=18;
+  ctx.beginPath(); ctx.roundRect?ctx.roundRect(W-padR,bY2,padR-2,bH2,3):ctx.fillRect(W-padR,bY2,padR-2,bH2);
+  ctx.fill();
+  ctx.fillStyle='#020408'; ctx.font='bold 8px JetBrains Mono,monospace'; ctx.textAlign='center';
+  ctx.fillText(fmtP(last.c), W-padR+(padR-2)/2, py(last.c)+3);
 
-  // ── SCROLLBAR (DOM) ───────────────────────────────────────────────────
-  updateSmScrollbar();
+  // ── BLIT TO SCREEN ────────────────────────────────────────────────────
+  const screenCtx=canvas.getContext('2d');
+  screenCtx.drawImage(off,0,0);
 
-  // ── MOUSE TOOLTIP ─────────────────────────────────────────────────────
+  // Store snapshot for crosshair overlay (no redraw needed)
+  canvas._smSnap={off,W,H,dpr,padL,padR,padT,padB,chartH,chartW,gap,n,K,py,px,hi,lo,pRange,last,candleW};
+
+  // Register mouse/touch handlers
   canvas.onmousemove=function(e){
-    if(smIsDragging) return;
     const rect=canvas.getBoundingClientRect();
-    const mx=e.clientX-rect.left;
-    const idx=Math.min(n-1,Math.max(0,Math.round((mx-padL)/gap)));
-    const k=K[idx]; if(!k) return;
-    const tt=document.getElementById('smTooltip');
-    const d=new Date(k.t);
-    const ts=d.toLocaleDateString('ru',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
-    tt.innerHTML=`<span style="color:#6a8fad">${ts}</span>&nbsp;&nbsp;O:<b>${fmtP(k.o)}</b> H:<b style="color:#00ff9d">${fmtP(k.h)}</b> L:<b style="color:#ff4060">${fmtP(k.l)}</b> C:<b>${fmtP(k.c)}</b>`;
-    tt.style.display='block';
-    tt.style.left=Math.min(mx+10,W-200)+'px'; tt.style.top='8px';
+    drawCrosshair(e.clientX-rect.left, e.clientY-rect.top);
   };
   canvas.onmouseleave=function(){
     document.getElementById('smTooltip').style.display='none';
+    // Restore clean chart
+    canvas.getContext('2d').drawImage(off,0,0);
   };
 }
 function fmtP(n){
@@ -978,33 +909,72 @@ function fmtP(n){
   return n.toFixed(8);
 }
 
-// ── SCROLLBAR DOM UPDATE ──────────────────────────────────────────────────
-function updateSmScrollbar(){
-  const thumb=document.getElementById('smThumb');
-  const track=document.getElementById('smTrack');
-  if(!thumb||!track||!smKlines.length) return;
-  const total=smKlines.length;
-  const vis=Math.min(smCandlesVisible,total);
-  const pct=vis/total;
-  const offsetPct=total>vis?smViewOffset/(total-vis):0;
-  const trackW=track.clientWidth||200;
-  const thumbW=Math.max(20,pct*trackW);
-  const thumbLeft=offsetPct*(trackW-thumbW);
-  thumb.style.width=thumbW+'px';
-  thumb.style.left=thumbLeft+'px';
+// ── CROSSHAIR OVERLAY (blit offscreen + draw on top — zero flicker) ──────
+function drawCrosshair(mx, my){
+  const canvas=document.getElementById('smCanvas');
+  const s=canvas._smSnap; if(!s) return;
+  const {off,W,H,dpr,padL,padR,padT,padB,chartH,gap,n,K,py,px,hi,lo,pRange}=s;
+
+  const ctx=canvas.getContext('2d');
+  ctx.drawImage(off,0,0); // restore clean frame instantly
+
+  if(mx<padL||mx>W-padR||my<padT||my>H-padB) return;
+
+  // Work in physical pixels (multiply CSS coords by dpr)
+  const pmx=mx*dpr, pmy=my*dpr;
+  const ppadL=padL*dpr, ppadR=padR*dpr, ppadT=padT*dpr, ppadB=padB*dpr;
+  const pW=W*dpr, pH=H*dpr, pchartH=chartH*dpr, pgap=gap*dpr;
+
+  const idx=Math.min(n-1,Math.max(0,Math.floor((mx-padL)/gap)));
+  const snapX=px(idx)*dpr;
+  const k=K[idx]; if(!k) return;
+
+  // Crosshair lines
+  ctx.strokeStyle='rgba(180,210,255,.28)'; ctx.lineWidth=1; ctx.setLineDash([4*dpr,3*dpr]);
+  ctx.beginPath(); ctx.moveTo(snapX,ppadT); ctx.lineTo(snapX,pH-ppadB); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(ppadL,pmy);   ctx.lineTo(pW-ppadR,pmy);    ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Price label on right axis
+  const price=hi-((my-padT)/chartH)*pRange;
+  if(price>lo&&price<hi){
+    const bw=(padR-2)*dpr, bh=18*dpr;
+    ctx.fillStyle='#00d4ff';
+    ctx.fillRect(pW-ppadR, pmy-bh/2, bw, bh);
+    ctx.fillStyle='#020408';
+    ctx.font=`bold ${8*dpr}px JetBrains Mono,monospace`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(fmtP(price), pW-ppadR+bw/2, pmy);
+  }
+
+  // Date label on bottom axis
+  const d=new Date(k.t);
+  const ds=d.toLocaleDateString('ru',{month:'short',day:'numeric'})+' '+d.toLocaleTimeString('ru',{hour:'2-digit',minute:'2-digit'});
+  const lw=84*dpr, lh=14*dpr;
+  const lx=Math.min(Math.max(snapX-lw/2, ppadL), pW-ppadR-lw);
+  ctx.fillStyle='#00d4ff';
+  ctx.fillRect(lx, pH-ppadB, lw, lh);
+  ctx.fillStyle='#020408';
+  ctx.font=`bold ${7*dpr}px JetBrains Mono,monospace`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(ds, lx+lw/2, pH-ppadB+lh/2);
+
+  // OHLC tooltip (DOM)
+  const bull=k.c>=k.o;
+  const tt=document.getElementById('smTooltip');
+  tt.innerHTML=`<span style="color:#6a8fad;font-size:.58rem">${ds}</span>&nbsp;&nbsp;`+
+    `O:<b>${fmtP(k.o)}</b> `+
+    `H:<b style="color:#00ff9d">${fmtP(k.h)}</b> `+
+    `L:<b style="color:#ff4060">${fmtP(k.l)}</b> `+
+    `C:<b style="color:${bull?'#00ff9d':'#ff4060'}">${fmtP(k.c)}</b>`;
+  tt.style.display='block'; tt.style.left='10px'; tt.style.top='8px';
 }
 
-// ── PAN HELPERS ───────────────────────────────────────────────────────────
-function smPan(delta){
-  if(!smKlines.length) return;
-  smViewOffset=Math.min(Math.max(0,smViewOffset+delta), smKlines.length-smCandlesVisible);
-  drawSMChart();
-}
+// ── ZOOM HELPER ───────────────────────────────────────────────────────────
 function smZoom(delta){
   if(!smKlines.length) return;
-  const oldVis=smCandlesVisible;
-  smCandlesVisible=Math.min(Math.max(20,smCandlesVisible+delta), smKlines.length);
-  smViewOffset=Math.min(Math.max(0,smViewOffset+(oldVis-smCandlesVisible)), smKlines.length-smCandlesVisible);
+  smCandlesVisible=Math.min(Math.max(10,smCandlesVisible+delta), smKlines.length);
+  smViewOffset=Math.max(0,smKlines.length-smCandlesVisible);
   drawSMChart();
 }
 function setLiqMode(mode,btn){
@@ -1014,92 +984,46 @@ function setLiqMode(mode,btn){
   if(smKlines.length) drawSMChart();
 }
 
-// ── CANVAS PAN & ZOOM ─────────────────────────────────────────────────────
+// ── CANVAS ZOOM ONLY (wheel + pinch, no pan, no buttons) ─────────────────
 function initCanvasPan(){
   const canvas=document.getElementById('smCanvas');
-  const track=document.getElementById('smTrack');
-  const thumb=document.getElementById('smThumb');
   if(!canvas) return;
 
-  // ── Mouse drag on canvas ──
-  canvas.addEventListener('mousedown',e=>{
-    smIsDragging=true; smDragStartX=e.clientX; smDragStartOff=smViewOffset;
-  });
-  window.addEventListener('mousemove',e=>{
-    if(!smIsDragging||!smKlines.length) return;
-    const W=canvas.clientWidth||800;
-    const gap=Math.floor((W-70)/smCandlesVisible)||1;
-    const delta=Math.round((smDragStartX-e.clientX)/gap);
-    smViewOffset=Math.min(Math.max(0,smDragStartOff+delta), smKlines.length-smCandlesVisible);
-    drawSMChart();
-  });
-  window.addEventListener('mouseup',()=>{ smIsDragging=false; });
-
-  // ── Touch / trackpad on canvas ──
-  let touchStartX=0, touchStartOff=0;
-  canvas.addEventListener('touchstart',e=>{ touchStartX=e.touches[0].clientX; touchStartOff=smViewOffset; },{passive:true});
-  canvas.addEventListener('touchmove',e=>{
-    if(!smKlines.length) return;
-    const W=canvas.clientWidth||800;
-    const gap=Math.floor((W-70)/smCandlesVisible)||1;
-    const delta=Math.round((touchStartX-e.touches[0].clientX)/gap);
-    smViewOffset=Math.min(Math.max(0,touchStartOff+delta), smKlines.length-smCandlesVisible);
-    drawSMChart();
-  },{passive:true});
-
-  // ── Wheel/trackpad (works for MacBook touchpad horizontal swipe + Ctrl zoom) ──
+  // ── Mouse wheel zoom (always shows last N candles) ──
   canvas.addEventListener('wheel',e=>{
     if(!smKlines.length) return;
-    const W=canvas.clientWidth||800;
-    const gap=Math.floor((W-70)/smCandlesVisible)||1;
-
-    if(e.ctrlKey||e.metaKey){
-      // Pinch-to-zoom on MacBook or Ctrl+scroll
-      e.preventDefault();
-      const zDelta=e.deltaY>0?8:-8;
-      const oldVis=smCandlesVisible;
-      smCandlesVisible=Math.min(Math.max(20,smCandlesVisible+zDelta), smKlines.length);
-      smViewOffset=Math.min(Math.max(0,smViewOffset+(oldVis-smCandlesVisible)), smKlines.length-smCandlesVisible);
-    } else {
-      // Horizontal swipe (MacBook trackpad deltaX) OR vertical scroll
-      // deltaX is non-zero on trackpad horizontal swipe — this is the key fix for MacBook
-      const raw=Math.abs(e.deltaX)>Math.abs(e.deltaY)?e.deltaX:e.deltaY;
-      e.preventDefault();
-      const step=Math.max(1,Math.round(Math.abs(raw)/gap));
-      smViewOffset=Math.min(Math.max(0,smViewOffset+(raw>0?step:-step)), smKlines.length-smCandlesVisible);
-    }
+    e.preventDefault();
+    // Small delta = trackpad, large = mouse wheel
+    const step=Math.abs(e.deltaY)<15?2:8;
+    const dir=e.deltaY>0?1:-1; // scroll down = zoom out (more candles)
+    smCandlesVisible=Math.min(Math.max(10,smCandlesVisible+dir*step), smKlines.length);
+    // Always anchor to the right (latest candles)
+    smViewOffset=Math.max(0,smKlines.length-smCandlesVisible);
     drawSMChart();
   },{passive:false});
 
-  // ── DOM Scrollbar drag ──
-  if(track&&thumb){
-    let sbDragging=false, sbStartX=0, sbStartOff=0;
-    thumb.addEventListener('mousedown',e=>{
-      e.stopPropagation();
-      sbDragging=true; sbStartX=e.clientX; sbStartOff=smViewOffset;
-    });
-    window.addEventListener('mousemove',e=>{
-      if(!sbDragging||!smKlines.length) return;
-      const trackW=track.clientWidth||200;
-      const total=smKlines.length;
-      const thumbW=Math.max(20,(smCandlesVisible/total)*trackW);
-      const ratio=(total-smCandlesVisible)/(trackW-thumbW);
-      smViewOffset=Math.min(Math.max(0,Math.round(sbStartOff+(e.clientX-sbStartX)*ratio)), total-smCandlesVisible);
-      drawSMChart();
-    });
-    window.addEventListener('mouseup',()=>{ sbDragging=false; });
-    // Click on track (not thumb) to jump
-    track.addEventListener('click',e=>{
-      if(e.target===thumb) return;
-      const rect=track.getBoundingClientRect();
-      const clickX=e.clientX-rect.left;
-      const total=smKlines.length; if(!total) return;
-      const thumbW=Math.max(20,(smCandlesVisible/total)*rect.width);
-      const pct=(clickX-thumbW/2)/(rect.width-thumbW);
-      smViewOffset=Math.min(Math.max(0,Math.round(pct*(total-smCandlesVisible))), total-smCandlesVisible);
-      drawSMChart();
-    });
-  }
+  // ── Pinch zoom (mobile, 2 fingers) ──
+  let pinchStartDist=0, pinchStartVis=0;
+  canvas.addEventListener('touchstart',e=>{
+    if(e.touches.length===2){
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      pinchStartDist=Math.sqrt(dx*dx+dy*dy);
+      pinchStartVis=smCandlesVisible;
+    }
+  },{passive:true});
+
+  canvas.addEventListener('touchmove',e=>{
+    if(!smKlines.length||e.touches.length!==2) return;
+    e.preventDefault();
+    const dx=e.touches[0].clientX-e.touches[1].clientX;
+    const dy=e.touches[0].clientY-e.touches[1].clientY;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    const scale=pinchStartDist/dist;
+    smCandlesVisible=Math.min(Math.max(10,Math.round(pinchStartVis*scale)), smKlines.length);
+    smViewOffset=Math.max(0,smKlines.length-smCandlesVisible);
+    drawSMChart();
+  },{passive:false});
 }
 
 function setSmIv(btn){
@@ -1212,18 +1136,27 @@ function renderOI(){
     list=list.sort((a,b)=>Math.abs(b.pct)-Math.abs(a.pct));
   }
   if(!list.length){document.getElementById('oiL').innerHTML='<div class="ldg">нет данных для этого фильтра</div>';return;}
-  const maxA=Math.max(...list.map(c=>Math.abs(c.pct)),0.001);
+  const maxPct=Math.max(...list.map(c=>Math.abs(c.pct)),0.001);
   document.getElementById('oiL').innerHTML=list.map((c,i)=>{
     const up=c.pct>=0;
     const coin=COINS.find(x=>x.s.toUpperCase()===c.sym);
-    const bar=Math.round((Math.abs(c.pct)/maxA)*100);
-    return `<div class="rr" ${coin?`onclick="selectCoin('${coin.id}')"`:''}">
+    const bar=Math.round((Math.abs(c.pct)/maxPct)*100);
+    const pctStr=(up?'+':'')+c.pct.toFixed(3)+'%';
+    // Get price for OI in USD
+    const bnSym=c.sym+'USDT';
+    const pr=prices[bnSym];
+    const oiUsd=pr?c.oi*pr.price:null;
+    return `<div class="rr oi-row" ${coin?`onclick="selectCoin('${coin.id}')"`:''}">
       <span class="rn">${i+1}</span>
       ${coin?`<img class="rimg" src="${coin.img}" loading="lazy" onerror="this.style.display='none'">`:`<div class="rfb">${c.sym.charAt(0)}</div>`}
-      <span class="rsym">${c.sym}</span>
-      <div class="bw"><div class="bf" style="width:${bar}%;background:${up?'var(--g)':'var(--r)'}"></div></div>
-      <span class="rv">${foi(c.oi)}</span>
-      <span class="rc ${up?'up':'dn'}">${up?'▲ +':'▼ '}${Math.abs(c.pct).toFixed(3)}%</span>
+      <div class="oi-info">
+        <span class="rsym">${c.sym}</span>
+        <div class="oi-bar-wrap"><div class="oi-bar" style="width:${bar}%;background:${up?'var(--g)':'var(--r)'}"></div></div>
+      </div>
+      <div class="oi-vals">
+        <span class="oi-pct ${up?'up':'dn'}">${pctStr}</span>
+        <span class="oi-usd">${oiUsd?fl(oiUsd):foi(c.oi)+' coins'}</span>
+      </div>
     </div>`;
   }).join('');
 }
